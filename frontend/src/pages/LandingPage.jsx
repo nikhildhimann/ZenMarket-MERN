@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Container, Typography, Button, Grid, Paper, TextField, Stack } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useNavigate, Link } from 'react-router-dom';
 import { keyframes } from '@mui/system';
-import { Link } from 'react-router-dom';
+import axiosInstance from '../api/axiosInstance';
 
 
 
@@ -103,7 +102,7 @@ const LandingPage = () => {
   useEffect(() => {
     const fetchTrending = async () => {
       try {
-        const { data } = await axios.get('https://zenmarket-mern.onrender.com/api/v1/product', { params: { limit: 8 } });
+        const { data } = await axiosInstance.get('/v1/product', { params: { limit: 8 } });
         setTrendingProducts(data.products);
       } catch (error) {
         console.error("Error fetching trending products:", error);
