@@ -103,7 +103,7 @@ const LandingPage = () => {
   useEffect(() => {
     const fetchTrending = async () => {
       try {
-        const { data } = await axios.get('/api/v1/product', { params: { limit: 8 } });
+        const { data } = await axios.get('https://zenmarket-mern.onrender.com/api/v1/product', { params: { limit: 8 } });
         setTrendingProducts(data.products);
       } catch (error) {
         console.error("Error fetching trending products:", error);

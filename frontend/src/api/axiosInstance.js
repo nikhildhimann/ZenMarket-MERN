@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { logout } from '../redux/authSlice';
+import dotenv from 'dotenv';
+dotenv.config();
 
 let store;
 
@@ -13,6 +15,7 @@ export const injectStore = (_store) => {
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL, // Use the full URL from .env
 });
+console.log('API URL:', import.meta.env.VITE_API_URL);
 
 // This request interceptor is correct and reads the token from localStorage.
 axiosInstance.interceptors.request.use(
