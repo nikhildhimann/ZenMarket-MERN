@@ -28,16 +28,20 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: process.env.FRONTEND_URL || "https://zenmarket-mern.vercel.app/",
-        methods: ["GET", "POST"]
+        origin: process.env.FRONTEND_URL || "https://zenmarket-mern.vercel.app",
+        methods: ["GET", "POST"],
+        credentials: true
     }
 });
 
 app.use(cors({
   origin: [
     "http://localhost:5173", // Keep for local testing
-    "https://zenmarket-mern.vercel.app/" // <<< Add the actual deployed URL here
-  ]
+    "https://zenmarket-mern.vercel.app" // Remove trailing slash
+  ],
+  credentials: true, // Allow credentials
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
