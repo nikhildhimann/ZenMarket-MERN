@@ -8,8 +8,10 @@ export const injectStore = (_store) => {
   store = _store;
 };
 
+// --- THIS IS THE FIX ---
+// Set the baseURL directly from the environment variable
 const axiosInstance = axios.create({
-  baseURL: '/api', // Your API base URL from vite.config.js
+  baseURL: import.meta.env.VITE_API_URL, // Use the full URL from .env
 });
 
 // This request interceptor is correct and reads the token from localStorage.
@@ -19,31 +21,27 @@ axiosInstance.interceptors.request.use(
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
+    // No need to manually add '/api' here if baseURL includes the domain
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// ✨ FIX: Updated Response Interceptor
-// This interceptor is now more specific. It only logs the user out on a 401 error,
-// which indicates an invalid or expired token. Other errors (like 403) will be
-// handled by the component that made the API call.
+// Updated Response Interceptor (remains the same as your previous good version)
+// This interceptor only logs the user out on a 401 error.
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     // Check if the error is specifically a 401 Unauthorized error
     if (error.response && error.response.status === 401) {
       // Dispatch the logout action to clear the user's session
-      // This is the correct action for an invalid token.
       if (store) {
         store.dispatch(logout());
       }
     }
-    // For all other errors (including 403), let the promise reject
-    // so the calling function can handle it with a .catch() block.
+    // For all other errors, let the promise reject
     return Promise.reject(error);
   }
 );
 
 export default axiosInstance;
-

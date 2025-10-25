@@ -59,6 +59,10 @@ app.use("/api/v1/payment", paymentRoutes);
 app.use('/api/v1/analytics', analyticsRoutes);
 app.use('/api/v1/coupon', couponRoutes);
 
+app.get('/', (req, res) =>{
+    res.send('API is running...');
+});
+
 io.on('connection', (socket) => {
     console.log('A user connected via WebSocket:', socket.id);
     socket.on('disconnect', () => {
