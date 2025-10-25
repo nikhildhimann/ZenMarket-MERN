@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Box, Typography, Paper, CircularProgress, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import axiosInstance from '../../api/axiosInstance';
 
 const MyOrdersPage = () => {
     const [orders, setOrders] = useState([]);
@@ -14,7 +14,7 @@ const MyOrdersPage = () => {
         const fetchMyOrders = async () => {
             if (!token) return;
             try {
-                const { data } = await axios.get('/api/v1/order/myorders', {
+                const { data } = await axiosInstance.get('/api/v1/order/myorders', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setOrders(data.orders);

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { Box, Typography, Paper, CircularProgress, Alert, Grid, Divider } from '@mui/material';
-import axios from 'axios';
+import axiosInstance from '../../api/axiosInstance';
 
 const OrderDetailsPage = () => {
     const { id: orderId } = useParams();
@@ -14,7 +14,7 @@ const OrderDetailsPage = () => {
     useEffect(() => {
         const fetchOrderDetails = async () => {
             try {
-                const { data } = await axios.get(`/api/v1/order/${orderId}`, {
+                const { data } = await axiosInstance.get(`/api/v1/order/${orderId}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setOrder(data.order);

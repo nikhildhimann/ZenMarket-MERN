@@ -6,10 +6,10 @@ import {
     DialogContent, DialogContentText, DialogTitle, Snackbar, Alert, styled, Divider, Container
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { useNavigate } from 'react-router-dom';
+import { /* useNavigate removed (unused) */ } from 'react-router-dom';
 import { PhoneInput } from "react-international-phone";
 import "react-international-phone/style.css";
-import axios from 'axios';
+import axiosInstance from '../../api/axiosInstance';
 import { fetchCart, applyCoupon, removeCoupon } from '../../redux/cartSlice';
 
 const StyledPhoneInput = styled(Box)(({ theme, error }) => ({
@@ -40,7 +40,6 @@ const CheckoutPage = () => {
     const { items: cartItems = [], coupon = null, loading: cartLoading, error: cartError } = useSelector((state) => state.cart || {});
     const { token } = useSelector((state) => state.auth);
     const dispatch = useDispatch();
-    const navigate = useNavigate();
 
     const [addresses, setAddresses] = useState([]);
     const [selectedAddress, setSelectedAddress] = useState('');
@@ -69,14 +68,14 @@ const CheckoutPage = () => {
         const fetchAddresses = async () => {
             if (!token) return;
             try {
-                const { data } = await axios.get('/api/v1/address', { headers: { Authorization: `Bearer ${token}` } });
+                const { data } = await axiosInstance.get('/api/v1/address', { headers: { Authorization: `Bearer ${token}` } });
                 setAddresses(data.addresses);
                 if (data.addresses.length > 0) {
                     setSelectedAddress(data.addresses[0]._id);
                 } else {
                     setShowNewAddressForm(true);
                 }
-            } catch (error) {
+            } catch {
                 setSnackbar({ open: true, message: 'Failed to load addresses.', severity: 'error' });
             } finally {
                 setLoadingAddresses(false);
@@ -125,13 +124,13 @@ const CheckoutPage = () => {
         e.preventDefault();
         if (!validateAddress()) return;
         try {
-            const { data } = await axios.post('/api/v1/address', newAddress, { headers: { Authorization: `Bearer ${token}` } });
+            const { data } = await axiosInstance.post('/api/v1/address', newAddress, { headers: { Authorization: `Bearer ${token}` } });
             setAddresses([...addresses, data.address]);
             setSelectedAddress(data.address._id);
             setShowNewAddressForm(false);
             setNewAddress({ street: '', city: '', state: '', postalCode: '', country: '', phoneNo: '' });
             setFormErrors({});
-        } catch (error) {
+        } catch {
             setSnackbar({ open: true, message: 'Failed to add address.', severity: 'error' });
         }
     };
@@ -140,7 +139,7 @@ const CheckoutPage = () => {
         setIsProcessingPayment(true);
         try {
             const config = { headers: { Authorization: `Bearer ${token}` } };
-            const { data } = await axios.post('/api/v1/payment/payu', { shippingAddressId: selectedAddress }, config);
+            const { data } = await axiosInstance.post('/api/v1/payment/payu', { shippingAddressId: selectedAddress }, config);
             const { paymentData } = data;
             const form = document.createElement('form');
             form.method = 'POST';
@@ -165,14 +164,14 @@ const CheckoutPage = () => {
 
     const handleDeleteConfirm = async () => {
         try {
-            await axios.delete(`/api/v1/address/${deleteConfirm.id}`, { headers: { Authorization: `Bearer ${token}` } });
+            await axiosInstance.delete(`/api/v1/address/${deleteConfirm.id}`, { headers: { Authorization: `Bearer ${token}` } });
             const updatedAddresses = addresses.filter(addr => addr._id !== deleteConfirm.id);
             setAddresses(updatedAddresses);
             setSnackbar({ open: true, message: 'Address deleted successfully!', severity: 'success' });
             if (selectedAddress === deleteConfirm.id) {
                 setSelectedAddress(updatedAddresses.length > 0 ? updatedAddresses[0]._id : '');
             }
-        } catch (error) {
+        } catch {
             setSnackbar({ open: true, message: 'Failed to delete address.', severity: 'error' });
         } finally {
             handleDeleteClose();

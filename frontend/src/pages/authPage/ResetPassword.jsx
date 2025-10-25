@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import axiosInstance from "../../api/axiosInstance";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import {
   Box,
@@ -27,7 +27,7 @@ const ResetPassword = () => {
     setLoading(true);
     try {
       // CORRECTED: Changed '/api/auth/resetassword' to '/api/auth/resetPassword'
-      await axios.put(`/api/auth/resetPassword?token=${token}`, { password });
+  await axiosInstance.put(`/api/auth/resetPassword?token=${token}`, { password });
       setSuccess("Password updated successfully. You can now log in.");
       setPassword("");
       setTimeout(() => {

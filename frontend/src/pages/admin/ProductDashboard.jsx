@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import axiosInstance from '../../api/axiosInstance';
 import { 
     Box, Typography, TextField, Paper, Button, 
     CircularProgress, Pagination, Avatar, Dialog, DialogActions,
@@ -28,13 +28,13 @@ const ProductDashboard = () => {
     const fetchProducts = useCallback(async (currentPage, keyword) => {
         try {
             setLoading(true);
-            const { data } = await axios.get('/api/v1/product', {
+            const { data } = await axiosInstance.get('/api/v1/product', {
                 params: { page: currentPage, keyword, limit: 5 },
                 headers: { Authorization: `Bearer ${token}` }
             });
             setProducts(data.products.map(p => ({ ...p, id: p._id })));
             setTotalPages(data.pagination.totalPages);
-        } catch (err) { // Fixed bare catch
+        } catch { // Fixed bare catch
             setError('Failed to fetch products. Please try again later.');
         } finally {
             setLoading(false);
@@ -56,14 +56,14 @@ const ProductDashboard = () => {
         }
     }, [page, searchTerm, fetchProducts]);
 
-    const handlePageChange = (event, value) => setPage(value);
+    
     const handleSearchChange = (event) => setSearchTerm(event.target.value);
     const handleDeleteClick = (id) => setDeleteConfirm({ open: true, id });
     const handleDeleteClose = () => setDeleteConfirm({ open: false, id: null });
 
     const handleDeleteConfirm = async () => {
         try {
-            await axios.delete(`/api/v1/product/${deleteConfirm.id}`, {
+            await axiosInstance.delete(`/api/v1/product/${deleteConfirm.id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setSnackbar({ open: true, message: 'Product deleted successfully!', severity: 'success' });

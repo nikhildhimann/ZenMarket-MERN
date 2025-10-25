@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "../../api/axiosInstance";
 import { Box, Button, CircularProgress, TextField, Typography } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { loginStart, loginSuccess, loginFailure } from "../../redux/authSlice";
@@ -28,7 +28,7 @@ const AdminLoginPage = () => {
     dispatch(loginStart());
     try {
       // Use the new admin login endpoint
-      const res = await axios.post("/api/admin/auth/login", formData);
+  const res = await axiosInstance.post("/api/admin/auth/login", formData);
       const userData = res.data;
       dispatch(loginSuccess({ user: userData, token: userData.token }));
       navigate("/admin/products"); // Go straight to dashboard

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "../../api/axiosInstance";
 import {
     Box, Button, CircularProgress, TextField, Typography, Snackbar, Alert, Grid, Paper, Link as MuiLink,
     FormControlLabel, Checkbox, InputAdornment, IconButton
@@ -70,7 +70,7 @@ const Register = () => {
                     username: formData.email, // Using email as username for now
                     phoneNumber: '+910000000000' // Placeholder phone number
                 }
-                await axios.post("/api/auth/signup", submissionData);
+                await axiosInstance.post("/api/auth/signup", submissionData);
                 setMessage({
                     text: "Registration successful! Redirecting to login...",
                     severity: "success",

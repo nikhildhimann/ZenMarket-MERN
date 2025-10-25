@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import axios from 'axios';
+import axiosInstance from '../../api/axiosInstance';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Box, Typography, Paper, Grid, CircularProgress, FormControl, InputLabel, Select, MenuItem, useTheme, useMediaQuery, Alert } from '@mui/material';
 
@@ -53,7 +53,7 @@ const ProductCard = ({ product }) => (
 const ProductList = () => {
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
-    const [brands, setBrands] = useState([]);
+    const [_brands, setBrands] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
@@ -75,12 +75,12 @@ const ProductList = () => {
         const fetchFilterOptions = async () => {
             try {
                 const [catRes, brandRes] = await Promise.all([
-                    axios.get('/api/v1/categories'),
-                    axios.get('/api/v1/brands'),
+                    axiosInstance.get('/api/v1/categories'),
+                    axiosInstance.get('/api/v1/brands'),
                 ]);
                 setCategories(catRes.data);
                 setBrands(brandRes.data);
-            } catch (err) {
+            } catch {
                 setError('Failed to load filter options.');
             }
         };
@@ -92,7 +92,7 @@ const ProductList = () => {
         const fetchProducts = async () => {
             setLoading(true);
             try {
-                const { data } = await axios.get('/api/v1/product', {
+                const { data } = await axiosInstance.get('/api/v1/product', {
                     params: {
                         category: filters.category,
                         brand: filters.brand,
@@ -101,7 +101,7 @@ const ProductList = () => {
                     },
                 });
                 setProducts(data.products);
-            } catch (err) {
+            } catch {
                 setError("Failed to fetch products. Please try again later.");
             } finally {
                 setLoading(false);

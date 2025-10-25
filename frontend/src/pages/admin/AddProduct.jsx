@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axiosInstance from '../../api/axiosInstance';
 import {
     Box, Button, TextField, Typography, CircularProgress,
     FormControl, InputLabel, Select, MenuItem, Paper, Snackbar, Alert
@@ -31,12 +31,12 @@ const AddProduct = () => {
             try {
                 const config = { headers: { Authorization: `Bearer ${token}` } };
                 const [catRes, brandRes] = await Promise.all([
-                    axios.get('/api/v1/categories', config),
-                    axios.get('/api/v1/brands', config)
+                    axiosInstance.get('/api/v1/categories', config),
+                    axiosInstance.get('/api/v1/brands', config)
                 ]);
                 setCategories(catRes.data);
                 setBrands(brandRes.data);
-            } catch (err) {
+            } catch {
                 setError('Failed to load categories or brands.');
             }
         };
@@ -87,7 +87,7 @@ const AddProduct = () => {
                     'Authorization': `Bearer ${token}`
                 }
             };
-            await axios.post('/api/v1/product/new', productData, config);
+            await axiosInstance.post('/api/v1/product/new', productData, config);
             
             setSnackbar({ open: true, message: 'Product created successfully!' });
             setTimeout(() => navigate('/admin/products'), 1500);

@@ -6,7 +6,7 @@ import {
     DialogContent, TextField, DialogActions, Snackbar
 } from '@mui/material';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import axios from 'axios';
+import axiosInstance from '../../api/axiosInstance';
 
 // --- Import Icons ---
 import PersonIcon from '@mui/icons-material/Person';
@@ -48,7 +48,7 @@ const ProfilePage = () => {
         const fetchProfile = async () => {
             try {
                 const config = { headers: { Authorization: `Bearer ${token}` } };
-                const { data } = await axios.get('/api/auth/user/dashboard', config);
+                const { data } = await axiosInstance.get('/api/auth/user/dashboard', config);
                 setProfileData(data.user);
             } catch (err) {
                 setError(err.response?.data?.message || 'Failed to fetch profile data.');
@@ -77,7 +77,7 @@ const ProfilePage = () => {
     const handleUpdateProfile = async () => {
         try {
             const config = { headers: { Authorization: `Bearer ${token}` } };
-            const { data } = await axios.put('/api/auth/user/dashboard', editData, config);
+            const { data } = await axiosInstance.put('/api/auth/user/dashboard', editData, config);
             setProfileData(data.user); // Update the main profile data
             setSnackbar({ open: true, message: 'Profile updated successfully!', severity: 'success' });
         } catch (err) {

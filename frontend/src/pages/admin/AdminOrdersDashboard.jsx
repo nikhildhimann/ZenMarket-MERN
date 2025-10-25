@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Box, Typography, Paper, Select, MenuItem } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import axios from 'axios';
+import axiosInstance from '../../api/axiosInstance';
 
 const AdminOrdersDashboard = () => {
     const [orders, setOrders] = useState([]);
@@ -12,7 +12,7 @@ const AdminOrdersDashboard = () => {
     const fetchOrders = async () => {
         setLoading(true);
         try {
-            const { data } = await axios.get('/api/v1/order/admin/all', {
+            const { data } = await axiosInstance.get('/api/v1/order/admin/all', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             // ✨ FIX: Filter out any null/undefined orders and ensure each has an ID.
@@ -36,7 +36,7 @@ const AdminOrdersDashboard = () => {
 
     const handleStatusChange = async (id, status) => {
         try {
-            await axios.put(`/api/v1/order/admin/${id}`, { status }, {
+            await axiosInstance.put(`/api/v1/order/admin/${id}`, { status }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             fetchOrders();

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import axiosInstance from '../../api/axiosInstance';
 import { useParams, Link as RouterLink } from 'react-router-dom';
 import {
     Box, Typography, CircularProgress, Button, TextField, Snackbar,
@@ -36,8 +36,8 @@ const ProductDetails = () => {
         try {
             setLoading(true);
             const [{ data: productData }, { data: reviewsData }] = await Promise.all([
-                axios.get(`/api/v1/product/${id}`),
-                axios.get(`/api/v1/review/${id}`) // This endpoint needs to exist on your backend
+                axiosInstance.get(`/api/v1/product/${id}`),
+                axiosInstance.get(`/api/v1/review/${id}`) // This endpoint needs to exist on your backend
             ]);
             setProduct(productData.product);
             setReviews(reviewsData.reviews);
@@ -86,7 +86,7 @@ const ProductDetails = () => {
         setReviewLoading(true);
         try {
             const config = { headers: { Authorization: `Bearer ${token}` } };
-            await axios.post('/api/v1/review', { productId: id, rating, comment }, config);
+            await axiosInstance.post('/api/v1/review', { productId: id, rating, comment }, config);
             setSnackbar({ open: true, message: 'Review submitted successfully!', severity: 'success' });
             setRating(0);
             setComment('');

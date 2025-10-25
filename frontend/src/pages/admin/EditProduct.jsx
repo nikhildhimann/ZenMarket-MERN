@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axiosInstance from '../../api/axiosInstance';
 import {
     Box, Button, TextField, Typography, CircularProgress,
     FormControl, InputLabel, Select, MenuItem, Paper, Snackbar, Alert, Grid, Avatar, IconButton
@@ -36,9 +36,9 @@ const EditProduct = () => {
             try {
                 setLoading(true);
                 const [productRes, catRes, brandRes] = await Promise.all([
-                    axios.get(`/api/v1/product/${id}`, { headers: { Authorization: `Bearer ${token}` } }),
-                    axios.get('/api/v1/categories', { headers: { Authorization: `Bearer ${token}` } }),
-                    axios.get('/api/v1/brands', { headers: { Authorization: `Bearer ${token}` } })
+                    axiosInstance.get(`/api/v1/product/${id}`, { headers: { Authorization: `Bearer ${token}` } }),
+                    axiosInstance.get('/api/v1/categories', { headers: { Authorization: `Bearer ${token}` } }),
+                    axiosInstance.get('/api/v1/brands', { headers: { Authorization: `Bearer ${token}` } })
                 ]);
 
                 const productData = productRes.data.product;
@@ -53,7 +53,7 @@ const EditProduct = () => {
                 setCurrentImages(productData.images);
                 setCategories(catRes.data);
                 setBrands(brandRes.data);
-            } catch (err) {
+            } catch {
                 setError('Failed to load product data. Please try again.');
             } finally {
                 setLoading(false);
@@ -96,7 +96,7 @@ const EditProduct = () => {
                     'Authorization': `Bearer ${token}` 
                 }
             };
-            await axios.put(`/api/v1/product/${id}`, updateData, config);
+            await axiosInstance.put(`/api/v1/product/${id}`, updateData, config);
             
             setUpdateLoading(false);
             setSnackbar({ open: true, message: 'Product updated successfully!' });

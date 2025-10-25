@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "../../api/axiosInstance";
 import {
     Box, Button, CircularProgress, TextField, Typography, Snackbar, Alert, Grid, Paper, Link as MuiLink,
     FormControlLabel, Checkbox
@@ -45,7 +45,7 @@ const LoginPage = () => {
         e.preventDefault();
         dispatch(loginStart());
         try {
-            const res = await axios.post("/api/auth/login", formData);
+            const res = await axiosInstance.post("/api/auth/login", formData);
             const userData = res.data;
             if (userData.role === 'admin') {
                 dispatch(loginFailure("Invalid credentials."));
@@ -64,7 +64,7 @@ const LoginPage = () => {
         setForgotMsg("");
         dispatch(loginStart()); // Reuse loading state
         try {
-            await axios.post("/api/auth/requestPasswordReset", { email: forgotEmail });
+            await axiosInstance.post("/api/auth/requestPasswordReset", { email: forgotEmail });
             setForgotMsg("If an account with that email exists, a password reset link has been sent.");
             setForgotEmail("");
             setShowForgot(false); // Hide the form after submission

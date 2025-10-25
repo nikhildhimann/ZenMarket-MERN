@@ -5,7 +5,7 @@ import { Box, Typography, Paper, Button, Dialog, DialogActions, DialogContent, D
 import { DataGrid } from '@mui/x-data-grid';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import axios from 'axios';
+import axiosInstance from '../../api/axiosInstance';
 
 const CouponDashboard = () => {
     const [coupons, setCoupons] = useState([]);
@@ -19,7 +19,7 @@ const CouponDashboard = () => {
         setLoading(true);
         try {
             const config = { headers: { Authorization: `Bearer ${token}` } };
-            const { data } = await axios.get('/api/v1/coupon', config);
+            const { data } = await axiosInstance.get('/api/v1/coupon', config);
             setCoupons(data.coupons.map(c => ({ ...c, id: c._id })));
         } catch (error) {
             console.error("Failed to fetch coupons:", error);
@@ -42,7 +42,7 @@ const CouponDashboard = () => {
     const handleSubmit = async () => {
         try {
             const config = { headers: { Authorization: `Bearer ${token}` } };
-            await axios.post('/api/v1/coupon', formState, config);
+            await axiosInstance.post('/api/v1/coupon', formState, config);
             setSnackbar({ open: true, message: 'Coupon created successfully!', severity: 'success' });
             fetchCoupons();
         } catch (error) {
@@ -57,10 +57,10 @@ const CouponDashboard = () => {
         if (window.confirm('Are you sure you want to delete this coupon?')) {
             try {
                 const config = { headers: { Authorization: `Bearer ${token}` } };
-                await axios.delete(`/api/v1/coupon/${id}`, config);
+                await axiosInstance.delete(`/api/v1/coupon/${id}`, config);
                 setSnackbar({ open: true, message: 'Coupon deleted.', severity: 'success' });
                 fetchCoupons();
-            } catch (error) {
+            } catch {
                 setSnackbar({ open: true, message: 'Failed to delete coupon.', severity: 'error' });
             }
         }

@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import axiosInstance from '../api/axiosInstance';
 
 // Thunk to fetch the wishlist
 export const fetchWishlist = createAsyncThunk(
@@ -7,7 +7,7 @@ export const fetchWishlist = createAsyncThunk(
     async (_, { getState, rejectWithValue }) => {
         try {
             const { auth: { token } } = getState();
-            const { data } = await axios.get('/api/v1/wishlist', {
+            const { data } = await axiosInstance.get('/api/v1/wishlist', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             return data.wishlist.products;
@@ -23,7 +23,7 @@ export const toggleWishlistItem = createAsyncThunk(
     async (productId, { getState, rejectWithValue }) => {
         try {
             const { auth: { token } } = getState();
-            const { data } = await axios.post('/api/v1/wishlist', { productId }, {
+            const { data } = await axiosInstance.post('/api/v1/wishlist', { productId }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             return data.wishlist.products;
