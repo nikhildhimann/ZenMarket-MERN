@@ -8,12 +8,17 @@ export const injectStore = (_store) => {
   store = _store;
 };
 
-// --- THIS IS THE FIX ---
-// Set the baseURL directly from the environment variable
+const API_URL = import.meta.env.VITE_API_URL;
+if (!API_URL) {
+  throw new Error('VITE_API_URL environment variable is not set');
+}
+
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL, // Use the full URL from .env
+  baseURL: `${API_URL}/api`,
+  headers: {
+    'Content-Type': 'application/json'
+  }
 });
-console.log('API URL:', import.meta.env.VITE_API_URL);
 
 // This request interceptor is correct and reads the token from localStorage.
 axiosInstance.interceptors.request.use(
