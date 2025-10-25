@@ -1,7 +1,5 @@
 import axios from 'axios';
 import { logout } from '../redux/authSlice';
-import dotenv from 'dotenv';
-dotenv.config();
 
 let store;
 
