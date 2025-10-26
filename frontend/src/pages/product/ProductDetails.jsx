@@ -199,7 +199,7 @@ const ProductDetails = () => {
                                     <React.Fragment key={review._id}>
                                         <ListItem alignItems="flex-start">
                                             <ListItemAvatar>
-                                                <Avatar>{review.name.charAt(0)}</Avatar>
+                                                <Avatar>{review.user?.username ? review.user.username.charAt(0).toUpperCase() : '?'}</Avatar>
                                             </ListItemAvatar>
                                             <ListItemText
                                                 primary={<Rating value={review.rating} readOnly size="small" />}
