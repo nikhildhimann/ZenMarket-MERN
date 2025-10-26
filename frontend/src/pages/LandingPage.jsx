@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Box, Container, Typography, Button, Grid, Paper, TextField, Stack } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
 import { keyframes } from '@mui/system';
+// Ensure this import path is correct for your project structure
 import axiosInstance from '../api/axiosInstance';
 
 
-
-//style
+//style (Assuming this import is correct)
 import FeaturedCategories from "./style/FeaturedCategories";
 
 
@@ -102,14 +102,16 @@ const LandingPage = () => {
   useEffect(() => {
     const fetchTrending = async () => {
       try {
-        const { data } = await axiosInstance.get('/v1/product', { params: { limit: 8 } });
+        // --- THIS IS THE FIX ---
+        // Ensure the path includes the /api prefix
+        const { data } = await axiosInstance.get('/api/v1/product', { params: { limit: 8 } }); // Added /api
         setTrendingProducts(data.products);
       } catch (error) {
         console.error("Error fetching trending products:", error);
       }
     };
     fetchTrending();
-  }, []);
+  }, []); // Empty dependency array means this runs once on mount
 
   return (
     <Box>
@@ -119,12 +121,12 @@ const LandingPage = () => {
           <source src="/hero-video.mp4" type="video/mp4" />
         </video>
         <Box sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(8px)', zIndex: -1 }} />
-
+        {/* You might want to add text or buttons over the video here */}
       </Box>
 
       {/* Render the other sections */}
       <ParallaxScrollingGallery navigate={navigate} />
-      <FeaturedCategories />
+      <FeaturedCategories navigate={navigate} /> {/* Pass navigate if needed */}
       <CallToAction navigate={navigate} />
     </Box>
   );
