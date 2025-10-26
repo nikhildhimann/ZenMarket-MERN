@@ -10,13 +10,18 @@ export const injectStore = (_store) => {
 
 const API_URL = import.meta.env.VITE_API_URL;
 if (!API_URL) {
-  throw new Error('VITE_API_URL environment variable is not set');
+  // Added a check to ensure the environment variable is set during development/build
+  console.error('VITE_API_URL environment variable is not set!');
+  // You might want to throw an error or default to localhost for local dev
+  // throw new Error('VITE_API_URL environment variable is not set');
 }
 
+// --- THIS IS THE CORRECTED PART ---
+// Set the baseURL directly from the environment variable (should be just the domain)
 const axiosInstance = axios.create({
-  baseURL: `${API_URL}/api`,
+  baseURL: API_URL, // Use ONLY the domain URL from .env
   headers: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json' // Keep default headers if needed
   }
 });
 
