@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import axiosInstance from '../../api/axiosInstance';
+import axiosInstance from '../../api/axiosInstance'; // Corrected import
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Box, Typography, Paper, Grid, CircularProgress, FormControl, InputLabel, Select, MenuItem, useTheme, useMediaQuery, Alert } from '@mui/material';
+import {
+    Box, Typography, Paper, Grid, CircularProgress, FormControl,
+    InputLabel, Select, MenuItem, useTheme, useMediaQuery, Alert, Container // Added Container
+} from '@mui/material';
 
 // A modern, reusable Product Card component with enhanced styling
 const ProductCard = ({ product }) => (
@@ -15,7 +18,7 @@ const ProductCard = ({ product }) => (
             display: 'block',
             overflow: 'hidden',
             position: 'relative',
-            height: '100%',
+            height: '100%', // Ensure card takes full height of grid item
             borderRadius: 2, // Softer corners
             transition: 'box-shadow 0.3s ease, transform 0.3s ease',
             '&:hover': {
@@ -53,7 +56,7 @@ const ProductCard = ({ product }) => (
 const ProductList = () => {
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
-    const [_brands, setBrands] = useState([]);
+    const [_brands, setBrands] = useState([]); // Variable name changed to avoid shadowing
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
@@ -80,7 +83,8 @@ const ProductList = () => {
                 ]);
                 setCategories(catRes.data);
                 setBrands(brandRes.data);
-            } catch {
+            } catch (err) { // Capture specific error
+                console.error("Error fetching filter options:", err);
                 setError('Failed to load filter options.');
             }
         };
@@ -91,6 +95,7 @@ const ProductList = () => {
     useEffect(() => {
         const fetchProducts = async () => {
             setLoading(true);
+            setError(''); // Clear previous errors
             try {
                 const { data } = await axiosInstance.get('/api/v1/product', {
                     params: {
@@ -101,8 +106,9 @@ const ProductList = () => {
                     },
                 });
                 setProducts(data.products);
-            } catch {
-                setError("Failed to fetch products. Please try again later.");
+            } catch (err) { // Capture specific error
+                console.error("Error fetching products:", err);
+                setError(err.response?.data?.message || "Failed to fetch products. Please try again later.");
             } finally {
                 setLoading(false);
             }
@@ -114,14 +120,18 @@ const ProductList = () => {
         if(filters.category) newSearch.set('category', filters.category);
         if(filters.brand) newSearch.set('brand', filters.brand);
         if(filters.sort) newSearch.set('sort', filters.sort);
-        navigate(`${location.pathname}?${newSearch.toString()}`, { replace: true });
+        // Only navigate if search params actually change to prevent loops
+        if (location.search !== `?${newSearch.toString()}`) {
+            navigate(`${location.pathname}?${newSearch.toString()}`, { replace: true });
+        }
 
-    }, [filters, navigate, location.pathname]);
+    // Include location.search in dependencies if needed, carefully
+    }, [filters, navigate, location.pathname, location.search]);
 
     const handleFilterChange = (e) => {
         setFilters(prev => ({ ...prev, [e.target.name]: e.target.value }));
     };
-    
+
     // Group products by their category name for organized display
     const groupedProducts = useMemo(() => {
         if (filters.category) {
@@ -131,79 +141,84 @@ const ProductList = () => {
         }
         // Otherwise, group all products by their category
         return products.reduce((acc, product) => {
-            const categoryName = product.category?.name || 'Other';
+            // Defensive check for product and category
+            const categoryName = product?.category?.name || 'Other';
             if (!acc[categoryName]) {
                 acc[categoryName] = [];
             }
-            acc[categoryName].push(product);
+            // Ensure product is valid before pushing
+            if (product?._id) {
+                acc[categoryName].push(product);
+            }
             return acc;
         }, {});
     }, [products, filters.category, categories]);
 
     return (
-        <>
-            <Box sx={{ p: { xs: 2, md: 4 } }}>
-                {/* Header and Filters Section */}
-                <Paper elevation={0} sx={{ mb: 4, p: 3, borderRadius: 2, bgcolor: 'background.paper' }}>
-                    <Typography variant="h3" component="h1" gutterBottom sx={{ fontWeight: 700 }}>
-                        Products
-                    </Typography>
-                    <Grid container spacing={2} alignItems="center">
-                        {/* ✨ FIX: Updated grid properties for better responsiveness across all screen sizes */}
-                        <Grid item xs={12} sm={12} md={4}>
-                            <FormControl fullWidth variant="outlined">
-                                <InputLabel>Category</InputLabel>
-                                <Select name="category" value={filters.category} label="Category" onChange={handleFilterChange}>
-                                    {/* <MenuItem value="category">All Categories</MenuItem> */}
-
-                                    {categories.map(cat => <MenuItem key={cat._id} value={cat._id}>{cat.name}</MenuItem>)}
-                                </Select>
-                            </FormControl>
-                        </Grid>
-                        <Grid item xs={12} sm={12} md={4}>
-                             <FormControl fullWidth variant="outlined">
-                                <InputLabel>Sort By</InputLabel>
-                                <Select name="sort" value={filters.sort} label="Sort By" onChange={handleFilterChange}>
-                                    <MenuItem value="name-asc">Name (A-Z)</MenuItem>
-                                    <MenuItem value="name-desc">Name (Z-A)</MenuItem>
-                                    <MenuItem value="price-asc">Price (Low to High)</MenuItem>
-                                    <MenuItem value="price-desc">Price (High to Low)</MenuItem>
-                                </Select>
-                            </FormControl>
-                        </Grid>
+        // Use Container for responsive max-width and centering
+        <Container maxWidth="xl" sx={{ py: { xs: 2, md: 4 } }}>
+            {/* Header and Filters Section */}
+            <Paper elevation={0} sx={{ mb: 4, p: 3, borderRadius: 2, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider' }}>
+                <Typography variant="h3" component="h1" gutterBottom sx={{ fontWeight: 700 }}>
+                    Products
+                </Typography>
+                <Grid container spacing={2} alignItems="center">
+                    <Grid item xs={12} sm={6} md={4}> {/* Adjusted grid sizes */}
+                        <FormControl fullWidth variant="outlined" size="small">
+                            <InputLabel>Category</InputLabel>
+                            <Select name="category" value={filters.category} label="Category" onChange={handleFilterChange}>
+                                <MenuItem value=""><em>All Categories</em></MenuItem>
+                                {categories.map(cat => <MenuItem key={cat._id} value={cat._id}>{cat.name}</MenuItem>)}
+                            </Select>
+                        </FormControl>
                     </Grid>
-                </Paper>
+                    <Grid item xs={12} sm={6} md={4}> {/* Adjusted grid sizes */}
+                         <FormControl fullWidth variant="outlined" size="small">
+                            <InputLabel>Sort By</InputLabel>
+                            <Select name="sort" value={filters.sort} label="Sort By" onChange={handleFilterChange}>
+                                <MenuItem value="name-asc">Name (A-Z)</MenuItem>
+                                <MenuItem value="name-desc">Name (Z-A)</MenuItem>
+                                <MenuItem value="price-asc">Price (Low to High)</MenuItem>
+                                <MenuItem value="price-desc">Price (High to Low)</MenuItem>
+                                {/* Consider adding 'createdAt-desc' for Newest */}
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                     {/* Placeholder for potential Brand filter */}
+                     {/* <Grid item xs={12} sm={6} md={4}> ... Brand Filter ... </Grid> */}
+                </Grid>
+            </Paper>
 
-                {/* Product Display Section */}
-                {loading ? (
-                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 10 }}><CircularProgress size={60} /></Box>
-                ) : error ? (
-                    <Alert severity="error">{error}</Alert>
-                ) : products.length === 0 ? (
-                    <Paper sx={{ p: 4, textAlign: 'center' }}>
-                        <Typography variant="h6">No Products Found</Typography>
-                        <Typography>Try adjusting your filters to find what you're looking for.</Typography>
-                    </Paper>
-                ) : (
-                    Object.keys(groupedProducts).map(categoryName => (
-                        <Box key={categoryName} sx={{ mb: 5 }}>
-                            <Typography variant="h4" component="h2" gutterBottom sx={{ fontWeight: 600, borderBottom: '2px solid', borderColor: 'divider', pb: 1, mb: 3 }}>
-                                {categoryName}
-                            </Typography>
-                            <Grid container spacing={isMobile ? 2 : 3}>
-                                {groupedProducts[categoryName].map((product) => (
-                                    <Grid item key={product._id} xs={6} sm={6} md={4} lg={3}>
-                                        <ProductCard product={product} />
-                                    </Grid>
-                                ))}
-                            </Grid>
-                        </Box>
-                    ))
-                )}
-            </Box>
-        </>
+            {/* Product Display Section */}
+            {loading ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 10 }}><CircularProgress size={60} /></Box>
+            ) : error ? (
+                <Alert severity="error" sx={{ mt: 4 }}>{error}</Alert>
+            ) : products.length === 0 ? (
+                <Paper sx={{ p: 4, textAlign: 'center', mt: 4, border: '1px solid', borderColor: 'divider' }}>
+                    <Typography variant="h6">No Products Found</Typography>
+                    <Typography color="text.secondary">Try adjusting your filters to find what you're looking for.</Typography>
+                </Paper>
+            ) : (
+                Object.keys(groupedProducts).map(categoryName => (
+                    <Box key={categoryName} sx={{ mb: 5 }}>
+                        <Typography variant="h4" component="h2" gutterBottom sx={{ fontWeight: 600, borderBottom: '2px solid', borderColor: 'divider', pb: 1, mb: 3 }}>
+                            {categoryName}
+                        </Typography>
+                        {/* Ensure Grid container takes full width */}
+                        <Grid container spacing={isMobile ? 2 : 3} sx={{ width: '100%' }}>
+                            {groupedProducts[categoryName].map((product) => (
+                                // --- STYLE FIX: Added xl breakpoint ---
+                                <Grid item key={product._id} xs={6} sm={6} md={4} lg={3} xl={2.4}>
+                                    <ProductCard product={product} />
+                                </Grid>
+                            ))}
+                        </Grid>
+                    </Box>
+                ))
+            )}
+        </Container>
     );
 };
 
 export default ProductList;
-

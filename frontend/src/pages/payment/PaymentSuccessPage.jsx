@@ -3,7 +3,7 @@ import { Box, Typography, Button, Paper } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { Link } from 'react-router-dom';
 
-const PaymentSuccessPage = () => {
+const  PaymentSuccessPage = () => {
     return (
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '70vh' }}>
             <Paper sx={{ p: 4, textAlign: 'center' }}>
